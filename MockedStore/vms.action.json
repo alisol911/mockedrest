@@ -1,0 +1,14 @@
+{
+    "put": [ {"mapField":"powerAction", "actions":
+    [
+        {"value":"poweron", "action":"update", "responseCode":200, "content":"", "data":{"state":"ON"}},
+        {"value":"poweroff", "action":"update", "responseCode":200, "content":"", "data":{"state":"OFF"}},
+        {"value":"suspend", "action":"update", "responseCode":200, "content":"", "data":{"state":"PAUSED"}},
+        {"value":"resume", "action":"update", "responseCode":200, "content":"", "data":{"state":"ON"}},
+        {"value":"shutdown", "action":"update", "responseCode":200, "content":"", "data":{"state":"OFF"}},
+        {"value":"restart", "action":"update", "responseCode":200, "content":"", "data":{"state":"ON"}}
+    ]
+    }
+    ]
+}
+

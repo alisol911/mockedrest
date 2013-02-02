@@ -1,0 +1,3 @@
+[{"id":1, "name":"JamBox", "uptime":"2D 12H", "ip":"108.178.49.93", "os":"Cent OS", "cpu":"4Ghz", "ram":"512MB", "disk":"100GB"},
+ {"id":2, "name":"JamBox 2", "uptime":"2D 12H", "ip":"108.178.49.9", "os":"Cent OS", "cpu":"2Ghz", "ram":"1024MB", "disk":"10GB"},
+ {"id":3, "name":"JamBox 3", "uptime":"2D 12H", "ip":"108.178.49.100", "os":"Cent OS", "cpu":"3Ghz", "ram":"2048MB", "disk":"20GB"}]

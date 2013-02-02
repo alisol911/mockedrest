@@ -1,0 +1,14 @@
+curl -X POST -H'Content-Type: application/json' -d'{"name":"test","number":1234}' http://localhost:8080/mockedrest/rest/server
+
+curl -X GET -H'Accept: application/json' http://localhost:8080/mockedrest/rest/server
+curl -X GET -H'Accept: application/json' http://localhost:8080/mockedrest/rest/server/1
+
+curl -X DELETE http://localhost:8080/mockedrest/rest/server/1
+
+curl -X PUT -H'Content-Type: application/json' -d'{"name":"test","number":1234678}' http://localhost:8080/mockedrest/rest/server/1
+
+
+curl -X POST -H'Content-Type: application/json' -d'{"cpuCores" : 2,"name" : "my-vm","networks" : [{"network" : "public", "ipCount" : 3}],"user" : {"id" : 1},"os" : "rhel5.4","primaryDisk" : 10737418240,"ram" : 4294967296}' http://localhost:8080/mockedrest/rest/vms
+curl -X GET -H'Accept: application/json' http://localhost:8080/mockedrest/rest/vms
+
+curl -X PUT -H'Content-Type: application/json' -d'{"powerAction":"poweron"}' http://localhost:8080/mockedrest/rest/vms/1

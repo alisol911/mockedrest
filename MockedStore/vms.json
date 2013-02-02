@@ -1,0 +1,25 @@
+[
+  {
+    "name": "two",
+    "cpu": 4,
+    "ram": 17408,
+    "disk": 41,
+    "uptime": 183600000,
+    "ip": "0.0.0.0",
+    "status": "ON",
+    "id": 86,
+    "os": "rhel5.4",
+    "role": "Web"
+  },
+  {
+    "name": "undefined",
+    "os": "",
+    "cpu": 5,
+    "ram": 24576,
+    "disk": 59,
+    "uptime": 183600000,
+    "ip": "0.0.0.0",
+    "status": "ON",
+    "id": 137
+  }
+]
