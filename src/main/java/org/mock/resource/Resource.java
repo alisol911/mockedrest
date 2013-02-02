@@ -3,7 +3,6 @@ package org.mock.resource;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Iterator;
@@ -18,12 +17,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.UriInfo;
 
 import org.codehaus.jettison.json.JSONArray;
@@ -206,29 +203,30 @@ public class Resource {
 
         saveStore(entityName, store);
 
-        return Response.ok(jo.toString(2)).type(MediaType.APPLICATION_JSON_TYPE)
-                .build();
+        return Response.ok(jo.toString(2))
+                .type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response readAll(@PathParam("entityName") String entityName, @Context UriInfo uriInfo)
-            throws Exception {
+    public Response readAll(@PathParam("entityName") String entityName,
+            @Context UriInfo uriInfo) throws Exception {
         processDelay(entityName, "get");
         Response response = processError(entityName, "get");
         if (response != null)
             return response;
         JSONArray store = readStore(entityName);
         JSONArray result = new JSONArray();
-        
+
         for (int i = 0; i < store.length(); i++) {
             boolean add = true;
             JSONObject item = (JSONObject) store.get(i);
-            for (Entry<String, List<String>> param : uriInfo.getQueryParameters().entrySet()){
-                add = item.has(param.getKey());
-                if (!add)
-                    break;
-                if (item.has(param.getKey()) && param.getValue().size() == 1 && !item.getString(param.getKey()).equals(param.getValue().get(0))) {
+            for (Entry<String, List<String>> param : uriInfo
+                    .getQueryParameters().entrySet()) {
+                if (item.has(param.getKey())
+                        && param.getValue().size() == 1
+                        && !item.getString(param.getKey()).equals(
+                                param.getValue().get(0))) {
                     add = false;
                     break;
                 }
