@@ -24,10 +24,9 @@ public class VmStats implements ExtendedResource {
             throw new Exception("to is null");
         if (uriInfo.getQueryParameters().get("samples") == null)
             throw new Exception("samples is null");
-        String targets = uriInfo.getQueryParameters().get("target").get(0);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-DD");
-        Date from = df.parse(uriInfo.getQueryParameters().get("from").get(0));
-        Date to = df.parse(uriInfo.getQueryParameters().get("to").get(0));
+        String targets = uriInfo.getQueryParameters().getFirst("target");
+        Date from = new Date(new Long(uriInfo.getQueryParameters().getFirst("from")));
+        Date to = new Date(new Long(uriInfo.getQueryParameters().getFirst("to")));
         Integer samples = Integer.getInteger(uriInfo.getQueryParameters()
                 .get("samples").get(0));
         if (samples == null) {
