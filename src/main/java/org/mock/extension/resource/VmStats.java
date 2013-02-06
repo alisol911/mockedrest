@@ -1,7 +1,5 @@
 package org.mock.extension.resource;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,11 +25,7 @@ public class VmStats implements ExtendedResource {
         String targets = uriInfo.getQueryParameters().getFirst("target");
         Date from = new Date(new Long(uriInfo.getQueryParameters().getFirst("from")));
         Date to = new Date(new Long(uriInfo.getQueryParameters().getFirst("to")));
-        Integer samples = Integer.getInteger(uriInfo.getQueryParameters()
-                .get("samples").get(0));
-        if (samples == null) {
-            samples = 5;
-        }
+        Integer samples = new Integer(uriInfo.getQueryParameters().getFirst("samples"));
 
         JSONArray statsArray = new JSONArray();
         for (String t : targets.split(",")) {
@@ -41,11 +35,10 @@ public class VmStats implements ExtendedResource {
             obj.put("dates", new JSONArray(findPoints(from, to, samples)));
             statsArray.put(obj);
         }
-        return Response.ok(statsArray.toString()).build();
+        return Response.ok(statsArray.toString(2)).build();
     }
 
     public List<Integer> findStat(String target, Date from, Date to, int samples) {
-        // TODO : read real stats instead of random generated values
         Random r = new Random();
         List<Integer> stats = new ArrayList<Integer>();
         for (int i = 0; i < samples; i++) {
