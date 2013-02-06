@@ -1,0 +1,11 @@
+{
+    "vms": {
+        "path": "stats",
+        "post": {},
+        "put": {},
+        "get": {
+            "class": "org.mock.extension.resource.VmStats"
+        },
+        "delete": {}
+    }
+}

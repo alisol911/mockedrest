@@ -33,6 +33,15 @@ public class Resource {
     public Resource() {
     }
 
+    private JSONObject getConfig() throws Exception {
+        String fileName = getClass().getClassLoader().getResource(".")
+                .getPath()
+                + "../MockedStore/MockedRest!.config.json";
+        String str = readFile(fileName);
+        return new JSONObject(str);
+
+    }
+
     private String getStoreFileName(String entityName) {
         String folderName = getClass().getClassLoader().getResource(".")
                 .getPath()
@@ -251,6 +260,26 @@ public class Resource {
                 .type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 
+    @GET
+    @Path("/{id}/{subResource}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response readEx(@PathParam("entityName") String entityName,
+            @PathParam("id") String id,
+            @PathParam("subResource") String subResource,
+            @Context UriInfo uriInfo) throws Exception {
+
+        JSONObject ex = getConfig().getJSONObject(entityName);
+        if (ex != null && ex.getString("path").equals(subResource)) {
+            processDelay(entityName, "get");
+            Response response = processError(entityName, "get");
+
+            ExtendedResource er = (ExtendedResource) Class.forName(ex
+                    .getJSONObject("get").getString("class")).newInstance();
+            return er.process(uriInfo);
+        } else
+            return Response.status(Status.NOT_FOUND).build();
+    }
+
     @PUT
     @Path("/{id}")
     @Consumes({ MediaType.APPLICATION_JSON })
@@ -327,4 +356,5 @@ public class Resource {
         saveStore(entityName, store);
         return Response.ok().build();
     }
+
 }
