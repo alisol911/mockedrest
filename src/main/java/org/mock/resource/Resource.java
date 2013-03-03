@@ -93,7 +93,8 @@ public class Resource {
 
     }
 
-    private JSONArray readStore(String entityName) throws Exception {
+    private JSONArray readStore(String entityName, Boolean createFile)
+            throws Exception {
         JSONArray result = null;
         String fileName = getStoreFileName(entityName);
         File f = new File(fileName);
@@ -104,7 +105,8 @@ public class Resource {
             else
                 result = new JSONArray(str);
         } else {
-            f.createNewFile();
+            if (createFile)
+                f.createNewFile();
             result = new JSONArray();
         }
         return result;
@@ -198,7 +200,7 @@ public class Resource {
         Response response = processError(entityName, "post");
         if (response != null)
             return response;
-        JSONArray store = readStore(entityName);
+        JSONArray store = readStore(entityName, true);
         Integer id = 1;
         for (int i = 0; i < store.length(); i++) {
             if (store.getJSONObject(i).optInt("id") >= id)
@@ -216,6 +218,34 @@ public class Resource {
                 .type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 
+    @POST
+    @Path("/{entityId}/{subEntityName}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response createEx(String string, @PathParam("entityId") String entityId,
+            @PathParam("entityName") String entityName,
+            @PathParam("subEntityName") String subEntityName,
+            @Context UriInfo uriInfo) throws Exception {
+        JSONArray store = readStore(entityName + "_" + entityId + "_"
+                + subEntityName, true);
+
+        Integer id = 1;
+        for (int i = 0; i < store.length(); i++) {
+            if (store.getJSONObject(i).optInt("id") >= id)
+                id = store.getJSONObject(i).getInt("id") + 1;
+        }
+
+        JSONObject jo = new JSONObject(string);
+        jo.put("id", id);
+
+        store.put(jo);
+
+        saveStore(entityName + "_" + entityId + "_" + subEntityName, store);
+
+        return Response.ok(jo.toString(2))
+                .type(MediaType.APPLICATION_JSON_TYPE).build();
+    }
+
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
     public Response readAll(@PathParam("entityName") String entityName,
@@ -224,7 +254,7 @@ public class Resource {
         Response response = processError(entityName, "get");
         if (response != null)
             return response;
-        JSONArray store = readStore(entityName);
+        JSONArray store = readStore(entityName, false);
         JSONArray result = new JSONArray();
 
         for (int i = 0; i < store.length(); i++) {
@@ -256,28 +286,46 @@ public class Resource {
         Response response = processError(entityName, "get");
         if (response != null)
             return response;
-        return Response.ok(find(readStore(entityName), id).toString(2))
+        return Response.ok(find(readStore(entityName, false), id).toString(2))
                 .type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     @GET
-    @Path("/{id}/{subResource}")
+    @Path("/{entityId}/{subEntityName}")
     @Produces({ MediaType.APPLICATION_JSON })
     public Response readEx(@PathParam("entityName") String entityName,
-            @PathParam("id") String id,
-            @PathParam("subResource") String subResource,
+            @PathParam("entityId") String entityId,
+            @PathParam("subEntityName") String subEntityName,
             @Context UriInfo uriInfo) throws Exception {
 
         JSONObject ex = getConfig().getJSONObject(entityName);
-        if (ex != null && ex.getString("path").equals(subResource)) {
+        if (ex != null && ex.getString("path").equals(subEntityName)) {
             processDelay(entityName, "get");
             Response response = processError(entityName, "get");
-
-            ExtendedResource er = (ExtendedResource) Class.forName(ex
-                    .getJSONObject("get").getString("class")).newInstance();
+            if (response != null)
+                return response;
+            ExtendedResource er = (ExtendedResource) Class.forName(
+                    ex.getJSONObject("get").getString("class")).newInstance();
             return er.process(uriInfo);
-        } else
-            return Response.status(Status.NOT_FOUND).build();
+        } else {
+            JSONArray store = readStore(entityName + "_" + entityId + "_"
+                    + subEntityName, false);
+            if (store.length() > 0)
+                return Response.ok(store.toString(2)).build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @GET
+    @Path("/{entityId}/{subEntityName}/{id}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response readExt(@PathParam("entityName") String entityName,
+            @PathParam("entityId") String entityId,
+            @PathParam("subEntityName") String subEntityName,
+            @PathParam("id") String id) throws Exception {
+
+        return Response.ok(find(readStore(entityName + "_" + entityId + "_" + subEntityName, false), id).toString(2))
+                .type(MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     @PUT
@@ -294,7 +342,7 @@ public class Resource {
         JSONObject jo = new JSONObject(string);
         jo.put("id", id);
 
-        JSONArray store = readStore(entityName);
+        JSONArray store = readStore(entityName, true);
         JSONObject action = readStoreAction(entityName);
         Integer index = findIndex(store, id);
         JSONObject currentRow = store.getJSONObject(index);
@@ -340,6 +388,32 @@ public class Resource {
                 .type(MediaType.APPLICATION_JSON).build();
     }
 
+    @PUT
+    @Path("/{entityId}/{subEntityName}/{id}")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response updateEx(String string,
+            @PathParam("entityName") String entityName,
+            @PathParam("entityId") String entityId,
+            @PathParam("subEntityName") String subEntityName,
+            @PathParam("id") String id) throws Exception {
+        JSONObject jo = new JSONObject(string);
+        JSONArray store = readStore(entityName + "_" + entityId + "_"
+                + subEntityName, true);
+        Integer index = findIndex(store, id);
+        JSONObject currentRow = store.getJSONObject(index);
+
+        Iterator keys = jo.keys();
+        while (keys.hasNext()) {
+            String key = (String) keys.next();
+            currentRow.put(key, jo.get(key));
+        }
+        store.put(index, currentRow);
+        saveStore(entityName + "_" + entityId + "_" + subEntityName, store);
+        return Response.ok(currentRow.toString(2))
+                .type(MediaType.APPLICATION_JSON).build();
+    }
+
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("entityName") String entityName,
@@ -348,13 +422,30 @@ public class Resource {
         Response response = processError(entityName, "delete");
         if (response != null)
             return response;
-        JSONArray store = readStore(entityName);
+        JSONArray store = readStore(entityName, false);
         JSONObject joid = find(store, id);
         if (joid.length() == 0)
             return Response.ok("invalid id").status(Status.NOT_FOUND).build();
         store.remove(joid);
+        // TODO remove subEntities
         saveStore(entityName, store);
         return Response.ok().build();
     }
 
+    @DELETE
+    @Path("/{entityId}/{subEntityName}/{id}")
+    public Response deleteEx(@PathParam("entityName") String entityName,
+            @PathParam("entityId") String entityId,
+            @PathParam("subEntityName") String subEntityName,
+            @PathParam("id") String id) throws Exception {
+        JSONArray store = readStore(entityName + "_" + entityId + "_"
+                + subEntityName, false);
+        JSONObject joid = find(store, id);
+        if (joid.length() == 0)
+            return Response.ok("invalid id").status(Status.NOT_FOUND).build();
+        store.remove(joid);
+        saveStore(entityName + "_" + entityId + "_"
+                + subEntityName, store);
+        return Response.ok().build();
+    }
 }

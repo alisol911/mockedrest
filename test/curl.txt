@@ -12,3 +12,10 @@ curl -X POST -H'Content-Type: application/json' -d'{"cpuCores" : 2,"name" : "my-
 curl -X GET -H'Accept: application/json' http://localhost:8080/mockedrest/rest/vms
 
 curl -X PUT -H'Content-Type: application/json' -d'{"powerAction":"poweron"}' http://localhost:8080/mockedrest/rest/vms/1
+
+
+curl -X POST -H'Content-Type: application/json' -d'{"test1" : 1}' http://localhost:8080/mockedrest/rest/vms/327/net
+curl -X GET http://localhost:8080/mockedrest/rest/vms/327/net
+curl -X GET http://localhost:8080/mockedrest/rest/vms/327/net/2
+curl -X PUT -H'Content-Type: application/json' -d'{"test1" : 3}' http://localhost:8080/mockedrest/rest/vms/327/net/2
+curl -X DELETE http://localhost:8080/mockedrest/rest/vms/327/net/2
