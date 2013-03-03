@@ -298,7 +298,7 @@ public class Resource {
             @PathParam("subEntityName") String subEntityName,
             @Context UriInfo uriInfo) throws Exception {
 
-        JSONObject ex = getConfig().getJSONObject(entityName);
+        JSONObject ex = getConfig().optJSONObject(entityName);
         if (ex != null && ex.getString("path").equals(subEntityName)) {
             processDelay(entityName, "get");
             Response response = processError(entityName, "get");
