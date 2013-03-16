@@ -17,6 +17,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -147,8 +148,11 @@ public class Resource {
         return -1;
     }
 
-    private Response processError(String entityName, String verbName)
+    private Response processError(String entityName, String verbName, Integer doNow)
             throws Exception {
+        if (doNow != null && doNow == 1)
+            return Response.ok().status(Status.INTERNAL_SERVER_ERROR).build();
+           
         JSONObject config = readStoreConfig(entityName);
         if (config.has("error")) {
             JSONObject error = config.getJSONObject("error");
@@ -169,8 +173,12 @@ public class Resource {
         return null;
     }
 
-    private void processDelay(String entityName, String verbName)
+    private void processDelay(String entityName, String verbName, Integer doNowDelay)
             throws Exception {
+        if (doNowDelay != null && doNowDelay > 0) {
+            Thread.sleep(doNowDelay);
+            return;
+        }
         JSONObject config = readStoreConfig(entityName);
         if (config.has("delay")) {
             JSONObject error = config.getJSONObject("delay");
@@ -194,10 +202,13 @@ public class Resource {
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
     public Response create(String string,
-            @PathParam("entityName") String entityName, @Context UriInfo uriInfo)
+            @PathParam("entityName") String entityName,
+            @QueryParam("error") Integer error,
+            @QueryParam("delay") Integer delay,
+            @Context UriInfo uriInfo)
             throws Exception {
-        processDelay(entityName, "post");
-        Response response = processError(entityName, "post");
+        processDelay(entityName, "post", delay);
+        Response response = processError(entityName, "post", error);
         if (response != null)
             return response;
         JSONArray store = readStore(entityName, true);
@@ -222,7 +233,8 @@ public class Resource {
     @Path("/{entityId}/{subEntityName}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response createEx(String string, @PathParam("entityId") String entityId,
+    public Response createEx(String string,
+            @PathParam("entityId") String entityId,
             @PathParam("entityName") String entityName,
             @PathParam("subEntityName") String subEntityName,
             @Context UriInfo uriInfo) throws Exception {
@@ -249,9 +261,11 @@ public class Resource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
     public Response readAll(@PathParam("entityName") String entityName,
+            @QueryParam("error") Integer error,
+            @QueryParam("delay") Integer delay,
             @Context UriInfo uriInfo) throws Exception {
-        processDelay(entityName, "get");
-        Response response = processError(entityName, "get");
+        processDelay(entityName, "get", delay);
+        Response response = processError(entityName, "get", error);
         if (response != null)
             return response;
         JSONArray store = readStore(entityName, false);
@@ -281,9 +295,11 @@ public class Resource {
     @Path("/{id}")
     @Produces({ MediaType.APPLICATION_JSON })
     public Response read(@PathParam("entityName") String entityName,
-            @PathParam("id") String id) throws Exception {
-        processDelay(entityName, "get");
-        Response response = processError(entityName, "get");
+            @PathParam("id") String id,
+            @QueryParam("error") Integer error,
+            @QueryParam("delay") Integer delay) throws Exception {
+        processDelay(entityName, "get", delay);
+        Response response = processError(entityName, "get", error);
         if (response != null)
             return response;
         return Response.ok(find(readStore(entityName, false), id).toString(2))
@@ -296,12 +312,14 @@ public class Resource {
     public Response readEx(@PathParam("entityName") String entityName,
             @PathParam("entityId") String entityId,
             @PathParam("subEntityName") String subEntityName,
+            @QueryParam("error") Integer error,
+            @QueryParam("delay") Integer delay,
             @Context UriInfo uriInfo) throws Exception {
 
         JSONObject ex = getConfig().optJSONObject(entityName);
         if (ex != null && ex.getString("path").equals(subEntityName)) {
-            processDelay(entityName, "get");
-            Response response = processError(entityName, "get");
+            processDelay(entityName, "get", delay);
+            Response response = processError(entityName, "get", error);
             if (response != null)
                 return response;
             ExtendedResource er = (ExtendedResource) Class.forName(
@@ -334,9 +352,11 @@ public class Resource {
     @Produces({ MediaType.APPLICATION_JSON })
     public Response update(String string,
             @PathParam("entityName") String entityName,
-            @PathParam("id") String id) throws Exception {
-        processDelay(entityName, "put");
-        Response response = processError(entityName, "put");
+            @PathParam("id") String id,
+            @QueryParam("error") Integer error,
+            @QueryParam("delay") Integer delay) throws Exception {
+        processDelay(entityName, "put", delay);
+        Response response = processError(entityName, "put", error);
         if (response != null)
             return response;
         JSONObject jo = new JSONObject(string);
@@ -417,9 +437,11 @@ public class Resource {
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("entityName") String entityName,
-            @PathParam("id") String id) throws Exception {
-        processDelay(entityName, "delete");
-        Response response = processError(entityName, "delete");
+            @PathParam("id") String id,
+            @QueryParam("error") Integer error,
+            @QueryParam("delay") Integer delay) throws Exception {
+        processDelay(entityName, "delete", delay);
+        Response response = processError(entityName, "delete", error);
         if (response != null)
             return response;
         JSONArray store = readStore(entityName, false);

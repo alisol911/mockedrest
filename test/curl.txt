@@ -19,3 +19,11 @@ curl -X GET http://localhost:8080/mockedrest/rest/vms/327/net
 curl -X GET http://localhost:8080/mockedrest/rest/vms/327/net/2
 curl -X PUT -H'Content-Type: application/json' -d'{"test1" : 3}' http://localhost:8080/mockedrest/rest/vms/327/net/2
 curl -X DELETE http://localhost:8080/mockedrest/rest/vms/327/net/2
+
+
+
+curl -X POST -H'Content-Type: application/json' -d'{"test1" : 1}' http://localhost:8080/mockedrest/rest/vms?error=1
+curl -X GET http://localhost:8080/mockedrest/rest/vms?delay=5000
+curl -X GET http://localhost:8080/mockedrest/rest/vms/327?error=1
+curl -X PUT -H'Content-Type: application/json' -d'{"test1" : 3}' http://localhost:8080/mockedrest/rest/vms/327?delay=5000
+curl -X DELETE http://localhost:8080/mockedrest/rest/vms/327?error=1
