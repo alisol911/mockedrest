@@ -27,3 +27,10 @@ curl -X GET http://localhost:8080/mockedrest/rest/vms?delay=5000
 curl -X GET http://localhost:8080/mockedrest/rest/vms/327?error=1
 curl -X PUT -H'Content-Type: application/json' -d'{"test1" : 3}' http://localhost:8080/mockedrest/rest/vms/327?delay=5000
 curl -X DELETE http://localhost:8080/mockedrest/rest/vms/327?error=1
+
+
+curl -X POST -H'Content-Type: application/json' -d'{"test1" : 1}' -H 'error:1' http://localhost:8080/mockedrest/rest/vms
+curl -X GET -H'delay:5000' http://localhost:8080/mockedrest/rest/vms
+curl -X GET -H 'error:1' http://localhost:8080/mockedrest/rest/vms/327
+curl -X PUT -H'Content-Type: application/json' -d'{"test1" : 3}' -H'delay:5000' http://localhost:8080/mockedrest/rest/vms/327
+curl -X DELETE -H 'error:1' http://localhost:8080/mockedrest/rest/vms/327

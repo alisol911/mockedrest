@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -205,10 +206,12 @@ public class Resource {
             @PathParam("entityName") String entityName,
             @QueryParam("error") Integer error,
             @QueryParam("delay") Integer delay,
+            @HeaderParam("error") Integer errorHeader,
+            @HeaderParam("delay") Integer delayHeader,
             @Context UriInfo uriInfo)
             throws Exception {
-        processDelay(entityName, "post", delay);
-        Response response = processError(entityName, "post", error);
+        processDelay(entityName, "post", (delay != null && delay > 0 ? delay : delayHeader));
+        Response response = processError(entityName, "post", (error != null && error > 0 ? error : errorHeader));
         if (response != null)
             return response;
         JSONArray store = readStore(entityName, true);
@@ -263,9 +266,11 @@ public class Resource {
     public Response readAll(@PathParam("entityName") String entityName,
             @QueryParam("error") Integer error,
             @QueryParam("delay") Integer delay,
+            @HeaderParam("error") Integer errorHeader,
+            @HeaderParam("delay") Integer delayHeader,
             @Context UriInfo uriInfo) throws Exception {
-        processDelay(entityName, "get", delay);
-        Response response = processError(entityName, "get", error);
+        processDelay(entityName, "get", (delay != null && delay > 0 ? delay : delayHeader));
+        Response response = processError(entityName, "get", (error != null && error > 0 ? error : errorHeader));
         if (response != null)
             return response;
         JSONArray store = readStore(entityName, false);
@@ -297,9 +302,11 @@ public class Resource {
     public Response read(@PathParam("entityName") String entityName,
             @PathParam("id") String id,
             @QueryParam("error") Integer error,
-            @QueryParam("delay") Integer delay) throws Exception {
-        processDelay(entityName, "get", delay);
-        Response response = processError(entityName, "get", error);
+            @QueryParam("delay") Integer delay,
+            @HeaderParam("error") Integer errorHeader,
+            @HeaderParam("delay") Integer delayHeader) throws Exception {
+        processDelay(entityName, "get", (delay != null && delay > 0 ? delay : delayHeader));
+        Response response = processError(entityName, "get", (error != null && error > 0 ? error : errorHeader));
         if (response != null)
             return response;
         return Response.ok(find(readStore(entityName, false), id).toString(2))
@@ -314,12 +321,14 @@ public class Resource {
             @PathParam("subEntityName") String subEntityName,
             @QueryParam("error") Integer error,
             @QueryParam("delay") Integer delay,
+            @HeaderParam("error") Integer errorHeader,
+            @HeaderParam("delay") Integer delayHeader,
             @Context UriInfo uriInfo) throws Exception {
 
         JSONObject ex = getConfig().optJSONObject(entityName);
         if (ex != null && ex.getString("path").equals(subEntityName)) {
-            processDelay(entityName, "get", delay);
-            Response response = processError(entityName, "get", error);
+            processDelay(entityName, "get", (delay != null && delay > 0 ? delay : delayHeader));
+            Response response = processError(entityName, "get", (error != null && error > 0 ? error : errorHeader));
             if (response != null)
                 return response;
             ExtendedResource er = (ExtendedResource) Class.forName(
@@ -354,9 +363,11 @@ public class Resource {
             @PathParam("entityName") String entityName,
             @PathParam("id") String id,
             @QueryParam("error") Integer error,
-            @QueryParam("delay") Integer delay) throws Exception {
-        processDelay(entityName, "put", delay);
-        Response response = processError(entityName, "put", error);
+            @QueryParam("delay") Integer delay,
+            @HeaderParam("error") Integer errorHeader,
+            @HeaderParam("delay") Integer delayHeader) throws Exception {
+        processDelay(entityName, "put", (delay != null && delay > 0 ? delay : delayHeader));
+        Response response = processError(entityName, "put", (error != null && error > 0 ? error : errorHeader));
         if (response != null)
             return response;
         JSONObject jo = new JSONObject(string);
@@ -416,7 +427,9 @@ public class Resource {
             @PathParam("entityName") String entityName,
             @PathParam("entityId") String entityId,
             @PathParam("subEntityName") String subEntityName,
-            @PathParam("id") String id) throws Exception {
+            @PathParam("id") String id,
+            @HeaderParam("error") Integer errorHeader,
+            @HeaderParam("delay") Integer delayHeader) throws Exception {
         JSONObject jo = new JSONObject(string);
         JSONArray store = readStore(entityName + "_" + entityId + "_"
                 + subEntityName, true);
@@ -439,9 +452,11 @@ public class Resource {
     public Response delete(@PathParam("entityName") String entityName,
             @PathParam("id") String id,
             @QueryParam("error") Integer error,
-            @QueryParam("delay") Integer delay) throws Exception {
-        processDelay(entityName, "delete", delay);
-        Response response = processError(entityName, "delete", error);
+            @QueryParam("delay") Integer delay,
+            @HeaderParam("error") Integer errorHeader,
+            @HeaderParam("delay") Integer delayHeader) throws Exception {
+        processDelay(entityName, "delete", (delay != null && delay > 0 ? delay : delayHeader));
+        Response response = processError(entityName, "delete", (error != null && error > 0 ? error : errorHeader));
         if (response != null)
             return response;
         JSONArray store = readStore(entityName, false);
