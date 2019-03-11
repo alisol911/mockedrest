@@ -38,7 +38,7 @@ public class Resource {
     private JSONObject getConfig() throws Exception {
         String fileName = getClass().getClassLoader().getResource(".")
                 .getPath()
-                + "../MockedStore/MockedRest!.config.json";
+                + "../../../../MockedStore/MockedRest!.config.json";
         String str = readFile(fileName);
         return new JSONObject(str);
 
@@ -47,7 +47,7 @@ public class Resource {
     private String getStoreFileName(String entityName) {
         String folderName = getClass().getClassLoader().getResource(".")
                 .getPath()
-                + "../MockedStore/";
+                + "../../../../MockedStore/";
         File folder = new File(folderName);
         if (!folder.exists())
             folder.mkdir();
